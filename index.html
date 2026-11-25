@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProSpeak Lab 2.0 — 메타분석 기반 성인 한국인 EFL 발음 클리닉</title>
+  <style>
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --primary: #1e3a8a;
+      --primary-light: #eff6ff;
+      --accent: #2563eb;
+      --teal: #0d9488;
+      --teal-bg: #f0fdfa;
+      --purple: #7c3aed;
+      --purple-bg: #f5f3ff;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --warning: #d97706;
+      --warning-bg: #fffbeb;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 18px;
+    }
+
+    .container { max-width: 1020px; margin: 0 auto; }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #1d4ed8 100%);
+      color: #fff;
+      padding: 22px 26px;
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    header h1 { font-size: 1.38rem; font-weight: 800; letter-spacing: -0.02em; }
+    header p { font-size: 0.86rem; opacity: 0.88; margin-top: 3px; }
+
+    .header-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill-group {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.14);
+      padding: 4px;
+      border-radius: 999px;
+    }
+    .pill-btn {
+      border: none;
+      background: transparent;
+      color: #fff;
+      padding: 5px 13px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .pill-btn.active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    /* Longitudinal & Balance Dashboard (Meta-analysis #1 & #3) */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 820px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .stat-label { font-size: 0.76rem; color: var(--muted); font-weight: 600; }
+    .stat-val { font-size: 1.25rem; font-weight: 800; color: var(--text); margin-top: 2px; }
+    .stat-sub { font-size: 0.74rem; color: var(--accent); margin-top: 2px; font-weight: 600; }
+
+    .mini-bar {
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+      display: flex;
+    }
+    .mini-bar-seg { background: #3b82f6; height: 100%; }
+    .mini-bar-supra { background: #0d9488; height: 100%; }
+
+    /* Mode Navigation: Segmentals vs Suprasegmentals vs Spontaneous Transfer */
+    .mode-section-bar {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 860px) { .mode-section-bar { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 520px) { .mode-section-bar { grid-template-columns: repeat(2, 1fr); } }
+
+    .tab-btn {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--muted);
+      position: relative;
+    }
+    .tab-btn .tag-cat {
+      display: inline-block;
+      font-size: 0.66rem;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-bottom: 3px;
+      font-weight: 700;
+    }
+    .cat-seg { background: #dbeafe; color: #1e40af; }
+    .cat-supra { background: #ccfbf1; color: #115e59; }
+    .cat-comm { background: #ede9fe; color: #5b21b6; }
+
+    .tab-btn span.desc {
+      display: block;
+      font-size: 0.71rem;
+      font-weight: 500;
+      margin-top: 2px;
+      opacity: 0.85;
+    }
+    .tab-btn.active {
+      border-color: var(--accent);
+      background: var(--primary-light);
+      color: var(--primary);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+    }
+    .tab-btn.active.comm-tab {
+      border-color: var(--purple);
+      background: var(--purple-bg);
+      color: #4c1d95;
+    }
+
+    /* Workspace Card */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+      margin-bottom: 16px;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+    .badge.biz { background: #f3e8ff; color: #6b21a8; }
+    .badge.daily { background: #e0f2fe; color: #0369a1; }
+    .badge.due { background: #fef3c7; color: #92400e; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-purple { background: var(--purple); color: #fff; border-color: var(--purple); }
+    .btn-purple:hover { background: #6d28d9; }
+
+    .btn-record {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+      padding: 11px 20px;
+      font-size: 0.92rem;
+    }
+    .btn-record.recording {
+      animation: pulse 1.2s infinite;
+      background: #991b1b;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); }
+      70% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+
+    .target-display {
+      background: #f8fafc;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      margin: 12px 0;
+    }
+    .target-main { font-size: 1.65rem; font-weight: 800; color: var(--text); }
+    .target-sub { font-size: 1.02rem; color: var(--accent); font-weight: 600; margin-top: 5px; font-family: 'Courier New', monospace; }
+    .target-meaning { font-size: 0.88rem; color: var(--muted); margin-top: 6px; }
+
+    /* Stress & Minimal Pair */
+    .stress-visual { display: flex; justify-content: center; align-items: center; gap: 9px; margin-top: 12px; flex-wrap: wrap; }
+    .syllable-box { padding: 6px 12px; border-radius: 8px; font-weight: 700; }
+    .syllable-box.primary-stress { background: #dbeafe; color: #1e3a8a; font-size: 1.22rem; border: 2px solid #2563eb; }
+    .syllable-box.unstressed { background: #f1f5f9; color: #64748b; font-size: 0.86rem; }
+
+    .mp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0; }
+    .mp-choice {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s;
+      background: #fff;
+    }
+    .mp-choice:hover { border-color: var(--accent); background: var(--primary-light); }
+    .mp-choice.correct { border-color: var(--success); background: var(--success-bg); }
+
+    /* Spontaneous Communicative Transfer Box (Meta-analysis #4) */
+    .comm-scenario {
+      background: var(--purple-bg);
+      border: 1.5px solid #ddd6fe;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+      margin: 12px 0;
+    }
+    .comm-prompt-title { font-size: 0.82rem; font-weight: 800; color: #5b21b6; text-transform: uppercase; letter-spacing: 0.03em; }
+    .comm-situation { font-size: 1.05rem; font-weight: 700; color: #1e1b4b; margin: 6px 0 10px; }
+    .comm-mission {
+      background: #fff;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      border-left: 4px solid var(--purple);
+    }
+    .target-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .target-chip {
+      background: #ede9fe;
+      color: #4c1d95;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .tip-box {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 0 10px 10px 0;
+      font-size: 0.88rem;
+      margin: 12px 0;
+      color: #78350f;
+    }
+
+    /* Acoustic Pitch & Intensity Canvas */
+    .waveform-box {
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+    .wave-legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+    canvas#waveCanvas { width: 100%; height: 76px; display: block; }
+    .audio-source-tag { font-size: 0.74rem; color: #94a3b8; margin-top: 5px; text-align: center; }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      justify-content: center;
+      margin: 16px 0;
+    }
+
+    /* Human-Like Pedagogical Feedback & Scoring Panel (Meta-analysis #2 & #5) */
+    .score-panel {
+      margin-top: 18px;
+      border-top: 1.5px solid var(--border);
+      padding-top: 18px;
+      display: none;
+    }
+
+    .coach-box {
+      background: linear-gradient(to right, #eff6ff, #f8fafc);
+      border: 1.5px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+    .coach-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 0.94rem;
+      color: #1e3a8a;
+      margin-bottom: 8px;
+    }
+    .coach-steps { display: grid; gap: 8px; font-size: 0.88rem; }
+    .coach-step-item { background: #fff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
+
+    .score-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .score-circle {
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .score-circle small { font-size: 0.68rem; font-weight: 500; opacity: 0.9; }
+
+    .rubric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 700px) { .rubric-grid { grid-template-columns: 1fr; } }
+
+    .rubric-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px;
+      background: #fff;
+    }
+    .rubric-item h4 { font-size: 0.83rem; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .rubric-item .pts { font-weight: 800; color: var(--primary); }
+    .rubric-item p { font-size: 0.82rem; color: #334155; }
+    .bar-track { height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin: 5px 0 7px; }
+    .bar-fill { height: 100%; transition: width 0.4s ease; }
+
+    .highlight-diff { background: #fee2e2; color: #b91c1c; padding: 1px 5px; border-radius: 4px; font-weight: 700; }
+    .highlight-ok { background: #d1fae5; color: #065f46; padding: 1px 5px; border-radius: 4px; font-weight: 700; }
+    .svg-contour { width: 100%; max-width: 420px; height: 62px; margin: 8px auto 0; display: block; }
+
+    .footer-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding: 12px 16px;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>ProSpeak Lab 2.0 — 메타분석 기반 영어 발음 클리닉</h1>
+      <p>장기 간격 반복 · 교정적 코칭 피드백 · 분절음/초분절음 균형 · 실전 자유 발화 전이</p>
+    </div>
+    <div class="header-controls">
+      <div class="pill-group" id="topicFilter">
+        <button class="pill-btn active" data-topic="all">전체 주제</button>
+        <button class="pill-btn" data-topic="daily">일상회화</button>
+        <button class="pill-btn" data-topic="business">비즈니스</button>
+      </div>
+      <div class="pill-group" id="accentFilter">
+        <button class="pill-btn active" data-accent="en-US">🇺🇸 US</button>
+        <button class="pill-btn" data-accent="en-GB">🇬🇧 UK</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Meta-analysis #1 (Longitudinal) & #3 (Segmental vs Suprasegmental Balance) Dashboard -->
+  <section class="dashboard-grid">
+    <div class="stat-card">
+      <div class="stat-label">📅 장기 지속 학습 (Streak)</div>
+      <div class="stat-val" id="statStreak">1일차 연습 중</div>
+      <div class="stat-sub" id="statTodayGoal">오늘 목표: 0 / 5 문항 완료</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🔁 간격 반복 복습 큐 (Due)</div>
+      <div class="stat-val" id="statDueCount">0개 복습 대기</div>
+      <div class="stat-sub"><a href="#" onclick="startDueReview(event)" style="color:var(--accent); text-decoration:none;">우선 복습 항목 바로가기 →</a></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">⚖️ 분절음 vs. 초분절음 균형</div>
+      <div class="stat-val" id="statBalanceText">50% : 50%</div>
+      <div class="mini-bar">
+        <div class="mini-bar-seg" id="barSeg" style="width:50%;"></div>
+        <div class="mini-bar-supra" id="barSupra" style="width:50%;"></div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">💬 실전 대화 전이 (Spontaneous)</div>
+      <div class="stat-val" id="statTransferCount">0회 수행</div>
+      <div class="stat-sub" id="statAvgScore">전체 평균 점수: -</div>
+    </div>
+  </section>
+
+  <!-- 6 Modes: Segmentals + Suprasegmentals + Spontaneous Transfer -->
+  <nav class="mode-section-bar" id="modeTabs">
+    <button class="tab-btn active" data-mode="minimal">
+      <span class="tag-cat cat-seg">분절음</span><br>1. 최소대립쌍
+      <span class="desc">음소 변별·산출</span>
+    </button>
+    <button class="tab-btn" data-mode="reading">
+      <span class="tag-cat cat-seg">분절음</span><br>2. 구문 읽기
+      <span class="desc">타겟 음소 문맥</span>
+    </button>
+    <button class="tab-btn" data-mode="stress">
+      <span class="tag-cat cat-supra">초분절음</span><br>3. 강세·약화
+      <span class="desc">강약 리듬 & /ə/</span>
+    </button>
+    <button class="tab-btn" data-mode="linking">
+      <span class="tag-cat cat-supra">초분절음</span><br>4. 연음 쉐도잉
+      <span class="desc">연결·탈락·탄설</span>
+    </button>
+    <button class="tab-btn" data-mode="intonation">
+      <span class="tag-cat cat-supra">초분절음</span><br>5. 억양 곡선
+      <span class="desc">문장 멜로디·태도</span>
+    </button>
+    <button class="tab-btn comm-tab" data-mode="spontaneous">
+      <span class="tag-cat cat-comm">대화 전이</span><br>6. 실전 즉흥 발화
+      <span class="desc">비대본 롤플레이</span>
+    </button>
+  </nav>
+
+  <main class="card" id="workspace"></main>
+
+  <!-- Meta-analysis #5: Human Tutor Bridge -->
+  <div class="footer-bar">
+    <span>💡 <strong>인간 교사/튜터 연계:</strong> AI 자동 피드백 외에 실제 원어민 강사나 스터디 파트너에게 정밀 교정을 받으려면 진단 리포트를 복사해 전달하세요.</span>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-primary" style="padding:6px 12px; font-size:0.8rem;" onclick="copyTutorReport()">📋 튜터 공유용 진단 리포트 복사</button>
+      <button class="btn" style="padding:6px 10px; font-size:0.78rem;" onclick="resetProgress()">기록 초기화</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CURRICULUM = [
+  // [SEGMENTALS] 1. MINIMAL PAIRS
+  {
+    id: "mp_daily_01",
+    mode: "minimal",
+    domain: "segmental",
+    topic: "daily",
+    pair: [
+      { word: "right", ipa: "/raɪt/", meaning: "오른쪽 / 옳은", audio: "assets/audio/mp_daily_01_a.mp3" },
+      { word: "light", ipa: "/laɪt/", meaning: "빛 / 가벼운", audio: "assets/audio/mp_daily_01_b.mp3" }
+    ],
+    contrast: "/r/ vs. /l/ 치경 접근음 대 설측음",
+    tip: "/r/은 혀끝을 입천장 어디에도 대지 않고 뒤로 살짝 말며 입술을 둥글게 내밉니다. /l/은 혀끝을 윗니 뒤 잇몸(치경)에 명확히 붙입니다.",
+    remediation: "혀끝이 윗잇몸에 닿으면 무조건 /l/ 소리가 납니다. 거울을 보고 혀끝을 공중에 띄운 채 '우-라이트'처럼 입술을 먼저 둥글려 시작해 보세요.",
+    expectedSec: 0.8
+  },
+  {
+    id: "mp_daily_02",
+    mode: "minimal",
+    domain: "segmental",
+    topic: "daily",
+    pair: [
+      { word: "coffee", ipa: "/ˈkɔːfi/", meaning: "커피", audio: "assets/audio/mp_daily_02_a.mp3" },
+      { word: "copy", ipa: "/ˈkɑːpi/", meaning: "복사하다", audio: "assets/audio/mp_daily_02_b.mp3" }
+    ],
+    contrast: "/f/ vs. /p/ 순치 마찰음 대 양순 파열음",
+    tip: "한국어 'ㅍ'처럼 두 입술을 붙였다 떼면 copy가 됩니다. coffee는 윗니를 아랫입술에 가볍게 대고 바람을 마찰시켜야 합니다.",
+    remediation: "윗니가 아랫입술 안쪽을 스치며 공기가 새어 나오는 '스-' 마찰 소리를 0.2초 먼저 낸 뒤 모음(-ee)을 연결하세요.",
+    expectedSec: 0.9
+  },
+  {
+    id: "mp_biz_01",
+    mode: "minimal",
+    domain: "segmental",
+    topic: "business",
+    pair: [
+      { word: "verify", ipa: "/ˈverɪfaɪ/", meaning: "검증하다 / 확인하다", audio: "assets/audio/mp_biz_01_a.mp3" },
+      { word: "berry pie", ipa: "/ˈberi paɪ/", meaning: "베리 파이", audio: "assets/audio/mp_biz_01_b.mp3" }
+    ],
+    contrast: "/v/ & /f/ 순치 마찰음 vs. /b/ & /p/ 양순 파열음",
+    tip: "비즈니스 회의에서 '데이터를 검증하다(verify)'가 '베리 파이'로 들리지 않으려면 v와 f 모두 윗니-아랫입술 접촉이 필수입니다.",
+    remediation: "첫 음절 /v/에서 성대를 울리면서 윗니로 아랫입술을 진동시키고, 마지막 음절 /f/에서도 다시 한 번 아랫입술을 깨물어 마찰을 만드세요.",
+    expectedSec: 1.1
+  },
+  {
+    id: "mp_biz_02",
+    mode: "minimal",
+    domain: "segmental",
+    topic: "business",
+    pair: [
+      { word: "sheet", ipa: "/ʃiːt/", meaning: "서류 한 장 / 엑셀 시트", audio: "assets/audio/mp_biz_02_a.mp3" },
+      { word: "shit", ipa: "/ʃɪt/", meaning: "비속어 (주의)", audio: "assets/audio/mp_biz_02_b.mp3" }
+    ],
+    contrast: "/iː/ 긴장 장모음 vs. /ɪ/ 이완 단모음",
+    tip: "sheet는 입꼬리를 옆으로 당겨 혀에 힘을 주고 길게 발음합니다. 짧고 힘없이 끊으면 오해를 부르는 단어가 됩니다.",
+    remediation: "단순히 길이만 늘리지 말고, 입꼬리를 양옆으로 팽팽하게 당겨 혀 앞쪽을 입천장 가까이로 밀어 올린 긴장 상태를 유지하세요.",
+    expectedSec: 0.8
+  },
+
+  // [SEGMENTALS] 2. CONTROLLED READING
+  {
+    id: "read_daily_01",
+    mode: "reading",
+    domain: "segmental",
+    topic: "daily",
+    text: "I really love fresh fried fish on Friday.",
+    focusPhonemes: ["/r/", "/l/", "/f/"],
+    meaning: "나는 금요일에 갓 튀긴 생선을 정말 좋아해.",
+    audio: "assets/audio/read_daily_01.mp3",
+    tip: "really(/r/-/l/), love(/l/-/v/), fresh/fried/fish/Friday(/f/와 /r/)가 연속 등장합니다. 입술과 혀의 전환 속도에 집중해 또박또박 읽으세요.",
+    remediation: "fresh, fried, Friday에서 /f/(아랫입술 마찰) 직후 혀끝이 잇몸에 닿지 않게 즉시 뒤로 당겨 /r/을 연결하는 2단 동작을 천천히 연습하세요.",
+    expectedSec: 2.6
+  },
+  {
+    id: "read_biz_01",
+    mode: "reading",
+    domain: "segmental",
+    topic: "business",
+    text: "We reviewed the revised financial forecast carefully.",
+    focusPhonemes: ["/r/", "/v/", "/f/", "/l/"],
+    meaning: "우리는 수정된 재무 예측치를 신중하게 검토했습니다.",
+    audio: "assets/audio/read_biz_01.mp3",
+    tip: "reviewed와 revised의 /r/ 시작과 /v/ 마찰, financial forecast의 /f/ 발음이 한국어 'ㅍ/ㅂ'로 뭉개지지 않도록 주의하세요.",
+    remediation: "reviewed와 revised의 어말 '-ed(/d/)'를 한국어처럼 '리뷰드'로 모음을 넣지 말고, 혀끝을 잇몸에 댄 채 짧게 끊어 마무리하세요.",
+    expectedSec: 3.1
+  },
+
+  // [SUPRASEGMENTALS] 3. STRESS & SCHWA
+  {
+    id: "stress_daily_01",
+    mode: "stress",
+    domain: "suprasegmental",
+    topic: "daily",
+    text: "photographer",
+    ipa: "/fəˈtɑːɡrəfər/",
+    meaning: "사진작가",
+    syllables: [
+      { text: "pho", stress: false },
+      { text: "TOG", stress: true },
+      { text: "ra", stress: false },
+      { text: "pher", stress: false }
+    ],
+    audio: "assets/audio/stress_daily_01.mp3",
+    tip: "첫 음절 pho를 '포'라고 강하게 읽지 말고 힘을 빼서 슈와(/fə/)로 약화한 뒤, 둘째 음절 TOG를 높고 길게 강세 주세요.",
+    remediation: "한국어 외래어 '포토그래퍼' 습관 때문에 1·3음절이 길어집니다. '퍼-타-그러퍼' 리듬으로 2음절 TOG만 2배 길게 늘려 발음하세요.",
+    expectedSec: 1.2
+  },
+  {
+    id: "stress_biz_01",
+    mode: "stress",
+    domain: "suprasegmental",
+    topic: "business",
+    text: "negotiation",
+    ipa: "/nɪˌɡoʊʃiˈeɪʃən/",
+    meaning: "협상",
+    syllables: [
+      { text: "ne", stress: false },
+      { text: "go", stress: false },
+      { text: "ti", stress: false },
+      { text: "A", stress: true },
+      { text: "tion", stress: false }
+    ],
+    audio: "assets/audio/stress_biz_01.mp3",
+    tip: "-tion 바로 앞 음절인 'A(/eɪ/)'에 제1강세가 옵니다. 앞부분은 빠르게 흘리고 A에서 피치를 확 올려주세요.",
+    remediation: "앞의 3음절(ne-go-ti)을 한 박자 안에 빠르게 굴려 보내고, '에이(A)'에서 음높이를 도레미파'솔'까지 올렸다가 tion에서 뚝 떨어뜨리세요.",
+    expectedSec: 1.3
+  },
+
+  // [SUPRASEGMENTALS] 4. CONNECTED SPEECH
+  {
+    id: "link_daily_01",
+    mode: "linking",
+    domain: "suprasegmental",
+    topic: "daily",
+    text: "What do you want to do tonight?",
+    spokenGuide: "Whaddaya wanna do tonight?",
+    ipa: "/wʌdəjə ˈwɑːnə duː təˈnaɪt/",
+    meaning: "오늘 밤에 뭐 하고 싶어?",
+    audio: "assets/audio/link_daily_01.mp3",
+    tip: "What do you는 '왓 두 유'가 아니라 탄설음과 축약이 일어나 '와더여(whaddaya)'로, want to는 '워너(wanna)'로 한 호흡에 연결됩니다.",
+    remediation: "단어 사이의 공백을 없애고 '와더여-워너-두-터나잇' 4덩어리의 리듬 단위로 한 호흡에 밀어내듯 발화하세요.",
+    expectedSec: 1.8
+  },
+  {
+    id: "link_biz_01",
+    mode: "linking",
+    domain: "suprasegmental",
+    topic: "business",
+    text: "Let's wrap it up and move on.",
+    spokenGuide: "Let's wra-pi-dup an' moo-von.",
+    ipa: "/lets ræpɪdʌp ən muːv ɑːn/",
+    meaning: "이쯤에서 마무리하고 다음으로 넘어가죠.",
+    audio: "assets/audio/link_biz_01.mp3",
+    tip: "wrap + it + up 세 단어를 끊지 말고 한 단어(wrapidup)처럼 연음하고, and의 d는 탈락시켜 부드럽게 연결합니다.",
+    remediation: "wrap의 /p/를 터뜨리지 말고 곧바로 모음 it과 합쳐 '래피', it의 /t/를 가볍게 혀로 튕겨 up과 합쳐 '덥'으로 이어주세요.",
+    expectedSec: 1.9
+  },
+
+  // [SUPRASEGMENTALS] 5. INTONATION CONTOUR
+  {
+    id: "into_daily_02",
+    mode: "intonation",
+    domain: "suprasegmental",
+    topic: "daily",
+    text: "Where did you put my keys?",
+    contourType: "falling",
+    contourLabel: "의문사 강조 후 하강 억양 (Wh- 의문문 ↘)",
+    meaning: "내 열쇠 어디에 뒀어?",
+    audio: "assets/audio/into_daily_02.mp3",
+    tip: "한국인은 의문문이면 무조건 끝을 올리는 경향이 있습니다. Wh- 의문문은 평서문처럼 문장 끝(keys)을 아래로 뚝 떨어뜨려야 자연스럽습니다.",
+    remediation: "문장 첫 단어 Where를 가장 높게 시작하고, 마지막 단어 keys에서는 한숨을 내쉬듯 음높이를 아래로 완전히 낮추세요.",
+    expectedSec: 1.6
+  },
+  {
+    id: "into_biz_02",
+    mode: "intonation",
+    domain: "suprasegmental",
+    topic: "business",
+    text: "I'm not quite sure about that.",
+    contourType: "fall-rise",
+    contourLabel: "완곡한 거절/유보의 하강-상승 억양 (Fall-Rise ↘↗)",
+    meaning: "그 부분에 대해서는 조금 의문인데요 (완곡한 반대).",
+    audio: "assets/audio/into_biz_02.mp3",
+    tip: "비즈니스에서 직설적 거절을 피할 때 쓰는 핵심 억양입니다. sure에서 낮췄다가 문장 끝 that을 살짝 올려 여운을 남기세요.",
+    remediation: "that을 평서문처럼 뚝 끊어 내리면 차가운 거절이 됩니다. sure에서 낮춘 뒤 that 끝모음을 살짝 위로 끌어올려 부드러운 여지를 남기세요.",
+    expectedSec: 1.8
+  },
+
+  // [COMMUNICATIVE TRANSFER] 6. SPONTANEOUS ROLE-PLAY (Meta-analysis #4)
+  {
+    id: "comm_daily_01",
+    mode: "spontaneous",
+    domain: "communicative",
+    topic: "daily",
+    situation: "카페에서 친구에게 주말 계획을 말하며 커피를 주문하는 상황",
+    mission: "스크립트 없이 2~3문장으로 자유롭게 영어로 대답해 보세요. 아래 필수 타겟 단어를 자연스럽게 포함시키세요.",
+    targetWords: ["coffee", "Friday", "relax"],
+    sampleModel: "I usually grab a hot coffee on Friday morning. After a long week, I just want to relax with my friends.",
+    audio: "assets/audio/comm_daily_01.mp3",
+    tip: "읽기 연습과 달리 자유 발화에서는 내용 구상에 집중하느라 /f/(coffee, Friday)와 /r/-/l/(relax) 조음이 원래 한국어 습관으로 되돌아가기 쉽습니다.",
+    remediation: "문장을 길게 만들려다 발음이 무너지기보다, 짧은 두 문장으로 나누어 타겟 단어(coffee, Friday, relax)의 입술·혀 위치를 의식하며 말해보세요.",
+    expectedSec: 4.5
+  },
+  {
+    id: "comm_biz_01",
+    mode: "spontaneous",
+    domain: "communicative",
+    topic: "business",
+    situation: "팀 회의에서 수정된 보고서 일정을 팀장에게 브리핑하는 상황",
+    mission: "대본 없이 자신의 말로 2~3문장 브리핑을 녹음하세요. 필수 키워드의 강세와 /v/, /f/, /r/ 발음을 유지하는 것이 목표입니다.",
+    targetWords: ["verify", "revised", "schedule"],
+    sampleModel: "We need to verify the revised numbers first. Let's schedule a brief meeting tomorrow morning to finalize everything.",
+    audio: "assets/audio/comm_biz_01.mp3",
+    tip: "비즈니스 즉흥 발화에서는 핵심 동사/명사(verify, revised, schedule)에 문장 강세를 실어주어야 청자가 핵심 메시지를 놓치지 않습니다.",
+    remediation: "필수 키워드 3개를 말하기 직전에 0.2초 호흡을 고른 뒤, 강세 음절(VER-i-fy, re-VISED, SCHED-ule)을 평소보다 1.5배 또렷하게 발음하세요.",
+    expectedSec: 5.0
+  }
+];
+
+// Persistent Longitudinal State
+let state = {
+  mode: "minimal",
+  topic: "all",
+  accent: "en-US",
+  index: 0,
+  mpTargetIdx: 0,
+  mpAnswered: false,
+  isRecording: false,
+  userAudioUrl: null,
+  attemptCountOnCurrent: 0,
+  history: JSON.parse(localStorage.getItem("prospeak_v2_history") || "[]"),
+  srsData: JSON.parse(localStorage.getItem("prospeak_v2_srs") || "{}") // { itemId: { nextReview: timestamp, intervalDays: 1, lastScore: 80 } }
+};
+
+let mediaRecorder = null;
+let audioChunks = [];
+let recordStartTime = 0;
+let activeAudio = null;
+
+function getFilteredItems() {
+  return CURRICULUM.filter(item => {
+    const modeMatch = item.mode === state.mode;
+    const topicMatch = state.topic === "all" || item.topic === state.topic;
+    return modeMatch && topicMatch;
+  });
+}
+
+function getCurrentItem() {
+  const list = getFilteredItems();
+  if (state.index >= list.length) state.index = 0;
+  return list[state.index];
+}
+
+function getDueItems() {
+  const now = Date.now();
+  return CURRICULUM.filter(item => {
+    const rec = state.srsData[item.id];
+    return rec && rec.nextReview <= now;
+  });
+}
+
+function startDueReview(e) {
+  e.preventDefault();
+  const due = getDueItems();
+  if (!due.length) {
+    alert("현재 복습 기한이 도래한 항목이 없습니다! 새로운 문항을 연습해 보세요.");
+    return;
+  }
+  const target = due[0];
+  state.mode = target.mode;
+  state.topic = "all";
+  document.querySelectorAll("#modeTabs .tab-btn").forEach(b => b.classList.toggle("active", b.dataset.mode === target.mode));
+  document.querySelectorAll("#topicFilter .pill-btn").forEach(b => b.classList.toggle("active", b.dataset.topic === "all"));
+  const list = getFilteredItems();
+  state.index = Math.max(0, list.findIndex(x => x.id === target.id));
+  render();
+}
+
+// Hybrid Audio Engine
+function playModelAudio(text, assetPath, rate = 1.0) {
+  if (activeAudio) { activeAudio.pause(); activeAudio = null; }
+  window.speechSynthesis.cancel();
+
+  const tag = document.getElementById("audioSourceTag");
+  const audio = new Audio(assetPath);
+  audio.playbackRate = rate;
+
+  audio.oncanplaythrough = () => {
+    if (tag) tag.textContent = `오디오 소스: GitHub Assets (${assetPath})`;
+    activeAudio = audio;
+    audio.play();
+    animateDualContour(1500, false);
+  };
+
+  audio.onerror = () => {
+    if (tag) tag.textContent = `오디오 소스: 브라우저 원어민 TTS (${state.accent})`;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = state.accent;
+    utter.rate = rate;
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v => v.lang.includes(state.accent) && (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Samantha")))
+                   || voices.find(v => v.lang.includes(state.accent));
+    if (preferred) utter.voice = preferred;
+    window.speechSynthesis.speak(utter);
+    animateDualContour(1500, false);
+  };
+}
+
+// Visual Pitch/Energy Comparison Canvas
+function animateDualContour(durationMs, isUser) {
+  const canvas = document.getElementById("waveCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const start = performance.now();
+
+  function frame(now) {
+    const elapsed = now - start;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw reference native pitch envelope (dashed cyan)
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let x = 0; x < canvas.width; x += 8) {
+      const progress = x / canvas.width;
+      const y = 38 - Math.sin(progress * Math.PI * 3) * 18 - Math.cos(progress * Math.PI * 5) * 6;
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Draw animated bars
+    const bars = 52;
+    const barW = canvas.width / bars;
+    for (let i = 0; i < bars; i++) {
+      const active = elapsed < durationMs;
+      const amp = active
+        ? (Math.sin(i * 0.4 + elapsed * 0.016) * 0.5 + 0.5) * 26 + 4
+        : 4;
+      ctx.fillStyle = isUser ? "rgba(244, 63, 94, 0.75)" : "rgba(56, 189, 248, 0.45)";
+      ctx.fillRect(i * barW + 2, (canvas.height - amp) / 2, barW - 4, amp);
+    }
+    if (elapsed < durationMs + 100) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+function render() {
+  const list = getFilteredItems();
+  const item = getCurrentItem();
+  const ws = document.getElementById("workspace");
+
+  if (!item) {
+    ws.innerHTML = `<p>해당 조건의 학습 항목이 없습니다.</p>`;
+    return;
+  }
+
+  const topicBadge = item.topic === "business"
+    ? `<span class="badge biz">비즈니스 실전</span>`
+    : `<span class="badge daily">일상회화</span>`;
+
+  const srsRec = state.srsData[item.id];
+  const dueBadge = (srsRec && srsRec.nextReview <= Date.now())
+    ? `<span class="badge due">🔁 간격 복습 권장 (이전 ${srsRec.lastScore}점)</span>`
+    : (srsRec ? `<span class="badge" style="background:#f1f5f9; color:#475569;">다음 복습: ${srsRec.intervalDays}일 후</span>` : "");
+
+  let bodyHtml = "";
+
+  if (item.mode === "minimal") {
+    const targetObj = item.pair[state.mpTargetIdx];
+    bodyHtml = `
+      <div class="target-display">
+        <div style="font-size:0.84rem; color:#475569; font-weight:600; margin-bottom:6px;">
+          [1단계 청지각 변별] 원어민 음성을 듣고 들리는 단어를 클릭한 뒤, [2단계] 직접 발음하여 피드백을 받으세요.
+        </div>
+        <div class="target-sub">${item.contrast}</div>
+        <div class="mp-grid">
+          ${item.pair.map((p, idx) => `
+            <div class="mp-choice ${state.mpAnswered ? (idx === state.mpTargetIdx ? 'correct' : '') : ''}"
+                 onclick="checkMinimalPair(${idx})">
+              <div style="font-size:1.4rem; font-weight:800;">${p.word}</div>
+              <div style="color:#2563eb; font-family:monospace; margin:3px 0;">${p.ipa}</div>
+              <div style="font-size:0.84rem; color:#64748b;">${p.meaning}</div>
+            </div>
+          `).join("")}
+        </div>
+        <div id="mpFeedback" style="font-size:0.88rem; font-weight:700; min-height:22px; color:var(--primary);">
+          ${state.mpAnswered ? `정답입니다! 이제 "${targetObj.word}" 발음을 녹음해 교정 피드백을 받아보세요.` : "먼저 [원어민 모델 듣기]를 눌러 어느 단어인지 맞춰보세요."}
+        </div>
+      </div>
+    `;
+  } else if (item.mode === "stress") {
+    bodyHtml = `
+      <div class="target-display">
+        <div class="target-main">${item.text}</div>
+        <div class="target-sub">${item.ipa}</div>
+        <div class="stress-visual">
+          ${item.syllables.map(s => `
+            <div class="syllable-box ${s.stress ? 'primary-stress' : 'unstressed'}">${s.text}</div>
+          `).join("")}
+        </div>
+        <div class="target-meaning">${item.meaning} (파란색 강세 음절은 길고 높게, 회색 음절은 슈와(/ə/)로 약화)</div>
+      </div>
+    `;
+  } else if (item.mode === "linking") {
+    bodyHtml = `
+      <div class="target-display">
+        <div style="font-size:0.8rem; color:#64748b; font-weight:600;">철자 표기 (Written Form)</div>
+        <div class="target-main" style="font-size:1.48rem;">${item.text}</div>
+        <div style="font-size:0.8rem; color:#2563eb; font-weight:700; margin-top:10px;">실제 구어 연음 (Connected Speech)</div>
+        <div class="target-sub" style="font-size:1.22rem;">"${item.spokenGuide}"</div>
+        <div style="font-size:0.86rem; color:#475569; margin-top:3px;">${item.ipa}</div>
+        <div class="target-meaning">${item.meaning}</div>
+      </div>
+    `;
+  } else if (item.mode === "intonation") {
+    let pathD = "M 20 45 Q 200 40 390 12";
+    if (item.contourType === "falling") pathD = "M 20 20 Q 210 18 390 55";
+    if (item.contourType === "fall-rise") pathD = "M 20 22 Q 210 58 310 52 T 395 25";
+    bodyHtml = `
+      <div class="target-display">
+        <div class="badge" style="margin-bottom:6px;">${item.contourLabel}</div>
+        <div class="target-main" style="font-size:1.5rem;">${item.text}</div>
+        <svg class="svg-contour" viewBox="0 0 420 62">
+          <line x1="15" y1="56" x2="405" y2="56" stroke="#cbd5e1" stroke-dasharray="4" />
+          <path d="${pathD}" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" />
+          <circle cx="390" cy="${item.contourType === 'rising' ? 12 : item.contourType === 'falling' ? 55 : 25}" r="5" fill="#dc2626" />
+        </svg>
+        <div class="target-meaning">${item.meaning}</div>
+      </div>
+    `;
+  } else if (item.mode === "reading") {
+    bodyHtml = `
+      <div class="target-display">
+        <div style="margin-bottom:8px;">
+          ${item.focusPhonemes.map(ph => `<span class="badge" style="margin:0 3px;">타겟 음소 ${ph}</span>`).join("")}
+        </div>
+        <div class="target-main" style="font-size:1.48rem;">${item.text}</div>
+        <div class="target-meaning">${item.meaning}</div>
+      </div>
+    `;
+  } else if (item.mode === "spontaneous") {
+    bodyHtml = `
+      <div class="comm-scenario">
+        <div class="comm-prompt-title">💬 읽기에서 실제 대화로의 전이 훈련 (Spontaneous Transfer Task)</div>
+        <div class="comm-situation">상황: ${item.situation}</div>
+        <div class="comm-mission">
+          <div>${item.mission}</div>
+          <div class="target-chips">
+            <span style="font-size:0.8rem; font-weight:700; color:#5b21b6; align-self:center;">필수 포함 키워드:</span>
+            ${item.targetWords.map(w => `<span class="target-chip">${w}</span>`).join("")}
+          </div>
+        </div>
+        <details style="margin-top:12px; font-size:0.86rem; color:#4c1d95; cursor:pointer;">
+          <summary style="font-weight:700;">💡 원어민 예시 응답 보기 (먼저 스스로 말한 뒤 확인하세요)</summary>
+          <p style="margin-top:6px; background:#fff; padding:10px; border-radius:8px; border:1px solid #ddd6fe;">
+            "${item.sampleModel}"
+          </p>
+        </details>
+      </div>
+    `;
+  }
+
+  const listenLabel = item.mode === "spontaneous" ? "🔊 원어민 예시 답변 듣기" : "🔊 원어민 모델 듣기";
+
+  ws.innerHTML = `
+    <div class="card-top">
+      <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+        ${topicBadge}
+        ${dueBadge}
+        <span style="font-size:0.83rem; color:var(--muted); margin-left:4px;">문항 ${state.index + 1} / ${list.length}</span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn" style="padding:6px 12px;" onclick="changeItem(-1)">◀ 이전</button>
+        <button class="btn" style="padding:6px 12px;" onclick="changeItem(1)">다음 ▶</button>
+      </div>
+    </div>
+
+    ${bodyHtml}
+
+    <div class="tip-box">
+      <strong>핵심 조음·운율 가이드:</strong> ${item.tip}
+    </div>
+
+    <div class="waveform-box">
+      <div class="wave-legend">
+        <span>🔵 원어민 억양·에너지 궤적 (Reference Contour)</span>
+        <span>🔴 내 발화 파형 (User Speech)</span>
+      </div>
+      <canvas id="waveCanvas" width="760" height="76"></canvas>
+      <div class="audio-source-tag" id="audioSourceTag">오디오 대기 중 (GitHub assets MP3 우선 / TTS 자동 전환)</div>
+    </div>
+
+    <div class="controls-row">
+      <button class="btn btn-primary" onclick="playCurrent(1.0)">${listenLabel}</button>
+      <button class="btn" onclick="playCurrent(0.75)">🐢 0.75x 느리게</button>
+      <button class="btn btn-record ${state.isRecording ? 'recording' : ''}" id="recordBtn" onclick="toggleRecording()">
+        ${state.isRecording ? '⏹ 녹음 중지 및 코칭 피드백 받기' : (item.mode === 'spontaneous' ? '🎙 자유 발화 녹음 & 평가' : '🎙 내 발음 녹음 & 코칭 피드백')}
+      </button>
+      <button class="btn" id="playMyBtn" onclick="playUserRecording()" ${state.userAudioUrl ? '' : 'disabled'}>
+        🎧 내 녹음 비교 청취
+      </button>
+    </div>
+
+    <div class="score-panel" id="scorePanel"></div>
+  `;
+
+  animateDualContour(0, false);
+  updateDashboard();
+}
+
+function playCurrent(rate) {
+  const item = getCurrentItem();
+  const text = item.mode === "minimal"
+    ? item.pair[state.mpTargetIdx].word
+    : (item.mode === "spontaneous" ? item.sampleModel : item.text);
+  const asset = item.mode === "minimal" ? item.pair[state.mpTargetIdx].audio : item.audio;
+  playModelAudio(text, asset, rate);
+}
+
+function checkMinimalPair(selectedIdx) {
+  state.mpAnswered = true;
+  const item = getCurrentItem();
+  const targetObj = item.pair[state.mpTargetIdx];
+  render();
+  const fb = document.getElementById("mpFeedback");
+  if (selectedIdx === state.mpTargetIdx) {
+    fb.style.color = "var(--success)";
+    fb.textContent = `청지각 변별 성공! "${targetObj.word}" (${targetObj.ipa})입니다. 이제 직접 녹음하여 산출 정확도를 검증하세요.`;
+  } else {
+    fb.style.color = "var(--danger)";
+    fb.textContent = `혼동 주의! 원어민 발음은 "${targetObj.word}" (${targetObj.ipa})였습니다. 다시 듣고 입술/혀 위치에 유의해 녹음해 보세요.`;
+  }
+}
+
+function changeItem(delta) {
+  const list = getFilteredItems();
+  state.index = (state.index + delta + list.length) % list.length;
+  state.mpTargetIdx = Math.floor(Math.random() * 2);
+  state.mpAnswered = false;
+  state.userAudioUrl = null;
+  state.attemptCountOnCurrent = 0;
+  render();
+}
+
+async function toggleRecording() {
+  if (state.isRecording) {
+    stopRecording();
+    return;
+  }
+
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) {
+    alert("이 브라우저는 음성 인식 채점(Web Speech API)을 지원하지 않습니다. Chrome 또는 Edge 최신 버전을 사용해 주세요.");
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    recordStartTime = performance.now();
+
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(audioChunks, { type: "audio/webm" });
+      state.userAudioUrl = URL.createObjectURL(blob);
+      stream.getTracks().forEach(t => t.stop());
+      const btn = document.getElementById("playMyBtn");
+      if (btn) btn.disabled = false;
+    };
+
+    const recognition = new SpeechRec();
+    recognition.lang = state.accent;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+      const elapsedSec = (performance.now() - recordStartTime) / 1000;
+      const res = event.results[0][0];
+      state.attemptCountOnCurrent += 1;
+      evaluateWithPedagogicalFeedback(res.transcript, res.confidence || 0.85, elapsedSec);
+    };
+
+    recognition.onerror = (err) => {
+      state.isRecording = false;
+      render();
+      alert("음성이 명확히 인식되지 않았습니다. 마이크 가까이에서 다시 발음해 주세요. (" + err.error + ")");
+    };
+
+    recognition.onend = () => { if (state.isRecording) stopRecording(); };
+
+    state.isRecording = true;
+    render();
+    mediaRecorder.start();
+    recognition.start();
+    animateDualContour(5500, true);
+  } catch (e) {
+    alert("마이크 접근 권한이 필요합니다. 브라우저 주소창 왼쪽 권한 설정에서 마이크를 허용해 주세요.");
+  }
+}
+
+function stopRecording() {
+  state.isRecording = false;
+  if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+  const btn = document.getElementById("recordBtn");
+  if (btn) {
+    btn.classList.remove("recording");
+    btn.textContent = "🎙 내 발음 녹음 & 코칭 피드백";
+  }
+}
+
+function playUserRecording() {
+  if (!state.userAudioUrl) return;
+  const audio = new Audio(state.userAudioUrl);
+  audio.play();
+  animateDualContour(1600, true);
+}
+
+function similarity(s1, s2) {
+  const a = s1.toLowerCase().replace(/[^a-z\s']/g, "").trim();
+  const b = s2.toLowerCase().replace(/[^a-z\s']/g, "").trim();
+  if (!a || !b) return 0;
+  const matrix = Array.from({ length: b.length + 1 }, (_, i) => [i]);
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      matrix[i][j] = b[i - 1] === a[j - 1]
+        ? matrix[i - 1][j - 1]
+        : Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+    }
+  }
+  const maxLen = Math.max(a.length, b.length);
+  return (maxLen - matrix[b.length][a.length]) / maxLen;
+}
+
+// Corrective Feedback + Spaced Repetition Update + Human-Coach Scaffolding
+function evaluateWithPedagogicalFeedback(transcript, confidence, elapsedSec) {
+  const item = getCurrentItem();
+  const spokenClean = transcript.toLowerCase().replace(/[^a-z\s']/g, "").trim();
+  const spokenWords = spokenClean.split(/\s+/).filter(Boolean);
+
+  let accuracyPts = 0;
+  let diffHtml = "";
+  let missedTargets = [];
+
+  if (item.mode === "spontaneous") {
+    // Evaluate spontaneous communicative speech on target keyword integration + sentence length
+    const matchedKeywords = item.targetWords.filter(kw => spokenClean.includes(kw.toLowerCase()));
+    missedTargets = item.targetWords.filter(kw => !spokenClean.includes(kw.toLowerCase()));
+    const kwRatio = matchedKeywords.length / item.targetWords.length;
+    const lengthBonus = spokenWords.length >= 6 ? 15 : Math.round((spokenWords.length / 6) * 15);
+    accuracyPts = Math.min(50, Math.round(kwRatio * 35) + lengthBonus);
+
+    diffHtml = item.targetWords.map(kw => {
+      const ok = spokenClean.includes(kw.toLowerCase());
+      return `<span class="${ok ? 'highlight-ok' : 'highlight-diff'}">${kw} (${ok ? '포함됨' : '누락/오인식'})</span>`;
+    }).join(" ");
+  } else {
+    const targetText = item.mode === "minimal" ? item.pair[state.mpTargetIdx].word : item.text;
+    const sim = similarity(targetText, transcript);
+    accuracyPts = Math.round(sim * 50);
+
+    const targetWords = targetText.toLowerCase().replace(/[^a-z\s']/g, "").split(/\s+/);
+    diffHtml = targetWords.map(w => {
+      const matched = spokenWords.includes(w);
+      if (!matched) missedTargets.push(w);
+      return `<span class="${matched ? 'highlight-ok' : 'highlight-diff'}">${w}</span>`;
+    }).join(" ");
+  }
+
+  // 2. Acoustic Clarity (30 pts)
+  const clarityPts = Math.round(Math.min(1, Math.max(0.4, confidence)) * 30);
+
+  // 3. Fluency & Pacing (20 pts)
+  const expected = item.expectedSec || 1.5;
+  const netSpeechSec = Math.max(0.4, elapsedSec - 0.35);
+  const ratio = netSpeechSec / expected;
+  let fluencyPts = 20;
+  let pacingNote = `원어민 표준 발화 호흡(${expected.toFixed(1)}초)과 균형 잡힌 템포(${netSpeechSec.toFixed(1)}초)입니다.`;
+
+  if (ratio > 1.7) {
+    fluencyPts = Math.max(8, Math.round(20 - (ratio - 1.7) * 9));
+    pacingNote = `발화 시간(${netSpeechSec.toFixed(1)}초)이 표준(${expected.toFixed(1)}초)보다 길어 단어별 끊어 읽기 경향이 나타납니다.`;
+  } else if (ratio < 0.5) {
+    fluencyPts = 12;
+    pacingNote = `발화 시간(${netSpeechSec.toFixed(1)}초)이 너무 짧아 강세 음절의 모음 길이가 충분히 확보되지 않았습니다.`;
+  }
+
+  const totalScore = Math.min(100, accuracyPts + clarityPts + fluencyPts);
+
+  // Update Spaced Repetition Schedule (Meta-analysis #1: Long-term retention)
+  const prevSrs = state.srsData[item.id] || { intervalDays: 1 };
+  let nextInterval = 1;
+  if (totalScore >= 85) nextInterval = Math.min(14, prevSrs.intervalDays * 2 + 1);
+  else if (totalScore >= 70) nextInterval = 2;
+  else nextInterval = 1; // Re-queue tomorrow if below 70
+
+  state.srsData[item.id] = {
+    nextReview: Date.now() + nextInterval * 24 * 60 * 60 * 1000,
+    intervalDays: nextInterval,
+    lastScore: totalScore
+  };
+  localStorage.setItem("prospeak_v2_srs", JSON.stringify(state.srsData));
+
+  // Save Longitudinal History
+  state.history.push({
+    id: item.id,
+    mode: item.mode,
+    domain: item.domain,
+    score: totalScore,
+    transcript,
+    missedTargets,
+    date: new Date().toISOString().slice(0, 10)
+  });
+  localStorage.setItem("prospeak_v2_history", JSON.stringify(state.history));
+  updateDashboard();
+
+  // Construct Human-Tutor Scaffolding Feedback (Meta-analysis #2 & #5)
+  const praiseMsg = clarityPts >= 25
+    ? "자음과 모음의 전반적인 성량과 조음 명료도가 안정적으로 전달되었습니다."
+    : "마이크 입력과 기본적인 문장 구조 파악이 잘 이루어졌습니다.";
+
+  let diagnosisMsg = "";
+  if (missedTargets.length > 0) {
+    diagnosisMsg = `목표 요소 중 <strong>[${missedTargets.join(", ")}]</strong> 부분이 다르게 인식되었습니다. 단순 반복 대신 아래 조음 처방을 적용해 다시 시도해 보세요.`;
+  } else if (fluencyPts < 16) {
+    diagnosisMsg = `개별 단어 정확도는 높지만, 발화 템포와 강약 리듬 조절에서 감점이 발생했습니다.`;
+  } else {
+    diagnosisMsg = `목표 음소와 운율 패턴이 모두 정확합니다! 이 감각을 유지하며 다음 간격 복습(${nextInterval}일 후)에서 장기 기억으로 정착시키세요.`;
+  }
+
+  const panel = document.getElementById("scorePanel");
+  const circleColor = totalScore >= 85 ? "var(--success)" : totalScore >= 65 ? "var(--accent)" : "var(--warning)";
+
+  panel.style.display = "block";
+  panel.innerHTML = `
+    <div class="coach-box">
+      <div class="coach-header">🧑‍🏫 발음 코치의 3단계 교정적 피드백 (시도 ${state.attemptCountOnCurrent}회차)</div>
+      <div class="coach-steps">
+        <div class="coach-step-item"><strong>1. 긍정 강화:</strong> ${praiseMsg}</div>
+        <div class="coach-step-item"><strong>2. 핵심 오류 진단:</strong> ${diagnosisMsg}</div>
+        <div class="coach-step-item" style="background:#fffbeb; border-color:#fde68a;">
+          <strong>3. 구체적 조음 처방 (Actionable Prescription):</strong> ${item.remediation}
+        </div>
+      </div>
+    </div>
+
+    <div class="score-header">
+      <div class="score-circle" style="background:${circleColor};">
+        ${totalScore}
+        <small>/ 100점</small>
+      </div>
+      <div style="flex:1; min-width:220px;">
+        <div style="font-size:0.8rem; color:var(--muted); font-weight:600;">목표 요소 대조 결과</div>
+        <div style="font-size:1.1rem; margin:4px 0;">${diffHtml}</div>
+        <div style="font-size:0.86rem; color:#334155;">실제 인식된 발화: <strong>"${transcript}"</strong></div>
+      </div>
+    </div>
+
+    <div class="rubric-grid">
+      <div class="rubric-item">
+        <h4>1. 타겟 음소·어휘 정확도 <span class="pts">${accuracyPts} / 50점</span></h4>
+        <div class="bar-track"><div class="bar-fill" style="width:${(accuracyPts/50)*100}%; background:var(--accent);"></div></div>
+        <p>${item.mode === 'spontaneous' ? '비대본 자유 발화 속 타겟 키워드 정확한 산출 및 문장 구성 비율을 반영했습니다.' : '목표 텍스트와 음성 인식 결과의 음소·단어 정합도를 반영했습니다.'}</p>
+      </div>
+      <div class="rubric-item">
+        <h4>2. 음향 명료도 (Clarity) <span class="pts">${clarityPts} / 30점</span></h4>
+        <div class="bar-track"><div class="bar-fill" style="width:${(clarityPts/30)*100}%; background:var(--success);"></div></div>
+        <p>음향 신뢰도 ${Math.round(confidence * 100)}% 반영. 어말 자음 파열과 모음 공명의 선명도를 평가합니다.</p>
+      </div>
+      <div class="rubric-item">
+        <h4>3. 운율·발화 템포 <span class="pts">${fluencyPts} / 20점</span></h4>
+        <div class="bar-track"><div class="bar-fill" style="width:${(fluencyPts/20)*100}%; background:var(--warning);"></div></div>
+        <p>${pacingNote}</p>
+      </div>
+    </div>
+  `;
+}
+
+function updateDashboard() {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const uniqueDays = new Set(state.history.map(h => h.date)).size;
+  const todayCount = state.history.filter(h => h.date === todayStr).length;
+  document.getElementById("statStreak").textContent = `${Math.max(1, uniqueDays)}일차 누적 학습`;
+  document.getElementById("statTodayGoal").textContent = `오늘 목표: ${todayCount} / 5 문항 완료`;
+
+  const dueCount = getDueItems().length;
+  document.getElementById("statDueCount").textContent = `${dueCount}개 복습 대기`;
+
+  // Segmental vs Suprasegmental balance
+  const segCount = state.history.filter(h => h.domain === "segmental").length;
+  const supraCount = state.history.filter(h => h.domain === "suprasegmental").length;
+  const totalDomain = segCount + supraCount;
+  if (totalDomain > 0) {
+    const segPct = Math.round((segCount / totalDomain) * 100);
+    const supraPct = 100 - segPct;
+    document.getElementById("statBalanceText").textContent = `${segPct}% : ${supraPct}%`;
+    document.getElementById("barSeg").style.width = `${segPct}%`;
+    document.getElementById("barSupra").style.width = `${supraPct}%`;
+  }
+
+  // Communicative Transfer count & Avg score
+  const transferCount = state.history.filter(h => h.domain === "communicative").length;
+  document.getElementById("statTransferCount").textContent = `${transferCount}회 수행`;
+  if (state.history.length > 0) {
+    const avg = Math.round(state.history.reduce((s, x) => s + x.score, 0) / state.history.length);
+    document.getElementById("statAvgScore").textContent = `전체 평균 점수: ${avg}점 (${state.history.length}회)`;
+  }
+}
+
+// Export Human-Tutor Diagnostic Report (Meta-analysis #5)
+function copyTutorReport() {
+  if (!state.history.length) {
+    alert("아직 녹음 연습 기록이 없습니다. 먼저 1문항 이상 연습한 뒤 리포트를 생성해 주세요.");
+    return;
+  }
+  const avg = Math.round(state.history.reduce((s, x) => s + x.score, 0) / state.history.length);
+  const weakItems = state.history.filter(h => h.score < 80);
+  const weakSummary = weakItems.length
+    ? weakItems.slice(-5).map(w => `- [${w.id}] 점수: ${w.score}점 / 인식발화: "${w.transcript}" / 취약요소: ${w.missedTargets.join(", ") || "운율·속도"}`).join("\n")
+    : "- 현재 80점 미만 취약 항목 없음";
+
+  const report = `[ProSpeak Lab EFL 학습자 발음 진단 리포트]
+- 누적 연습 횟수: ${state.history.length}회 (평균 ${avg}점)
+- 집중 교정 필요 항목 (최근 취약 기록):
+${weakSummary}
+
+* 튜터 요청사항: 위 취약 음소/운율 패턴에 대해 조음 피드백 및 대화 교정을 부탁드립니다.`;
+
+  navigator.clipboard.writeText(report).then(() => {
+    alert("튜터/강사 공유용 발음 진단 리포트가 클립보드에 복사되었습니다!\n원어민 강사나 채팅창에 붙여넣어 심화 피드백을 받아보세요.");
+  });
+}
+
+function resetProgress() {
+  if (!confirm("누적 학습 기록과 간격 반복 스케줄을 모두 초기화할까요?")) return;
+  state.history = [];
+  state.srsData = {};
+  localStorage.removeItem("prospeak_v2_history");
+  localStorage.removeItem("prospeak_v2_srs");
+  updateDashboard();
+  render();
+}
+
+// Event Listeners
+document.querySelectorAll("#modeTabs .tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#modeTabs .tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    state.mode = btn.dataset.mode;
+    state.index = 0;
+    state.mpTargetIdx = Math.floor(Math.random() * 2);
+    state.mpAnswered = false;
+    state.userAudioUrl = null;
+    state.attemptCountOnCurrent = 0;
+    render();
+  });
+});
+
+document.querySelectorAll("#topicFilter .pill-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#topicFilter .pill-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    state.topic = btn.dataset.topic;
+    state.index = 0;
+    state.mpAnswered = false;
+    state.userAudioUrl = null;
+    render();
+  });
+});
+
+document.querySelectorAll("#accentFilter .pill-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#accentFilter .pill-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    state.accent = btn.dataset.accent;
+    render();
+  });
+});
+
+window.speechSynthesis.onvoiceschanged = () => {};
+render();
+</script>
+</body>
+</html>
